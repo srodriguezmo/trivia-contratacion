@@ -23,8 +23,10 @@
             align-items: center; 
             min-height: 100vh; 
             padding: 15px; 
+            transition: background 0.3s ease;
         }
         
+        /* El contenedor con efecto transparente mate */
         .card { 
             background: rgba(255, 255, 255, 0.45); 
             backdrop-filter: blur(15px); 
@@ -47,10 +49,18 @@
             margin-bottom: 25px; 
         }
         
+        .img-screen { 
+            width: 100%; 
+            max-height: 200px; 
+            object-fit: contain; 
+            border-radius: 12px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
         
-        .screen { display: none; }
-        .active { display: block; }
+        /* Control estricto de pantallas ocultas */
+        .screen { display: none !important; }
+        .active { display: block !important; }
         
         h1 { 
             color: #0d2c6c; 
@@ -117,58 +127,4 @@
         .btn-option:hover:not([disabled]) { 
             background-color: #0d2c6c; 
             color: white; 
-            border-color: #0d2c6c; 
-        }
-        
-        .feedback { 
-            margin-top: 15px; 
-            font-weight: bold; 
-            font-size: 1.05rem; 
-            min-height: 24px; 
-        }
-        
-        .correct { color: #1e7e34; text-shadow: 0 1px 1px rgba(255,255,255,0.5); }
-        .incorrect { color: #bd2130; text-shadow: 0 1px 1px rgba(255,255,255,0.5); }
-        
-        .progress { 
-            color: #0076c0; 
-            font-size: 0.85rem; 
-            margin-bottom: 15px; 
-            text-align: left; 
-            font-weight: bold; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px; 
-        }
-    </style>
-</head>
-<body>
-
-<div class="card">
-    <img src="LOGO INVIAS.png" alt="Logo INVIAS" class="logo-invias">
-
-    <div id="welcome-screen" class="screen active">
-        <h1>Estaciones del Saber</h1>
-        <p>Demuestra la contratación pública en la Subdirección de Procesos de Selección Contractual. Deberás responder correctamente 3 preguntas consecutivas para conquistar la estación actual y reclamar tu premio.</p>
-        <button class="btn-action" onclick="startTrivia()">Iniciar Desafío</button>
-    </div>
-
-    <div id="quiz-screen" class="screen">
-        <div class="progress" id="progress-text">Estación <span id="station-number">1</span> | Pregunta <span id="current-index">1</span> de 3</div>
-        <h2 id="question-text">Cargando pregunta...</h2>
-        <div id="options-container"></div>
-        <div id="feedback-message" class="feedback"></div>
-        <button id="next-btn" class="btn-action" style="display: none; margin-top: 15px;" onclick="nextQuestion()">Siguiente Pregunta</button>
-    </div>
-
-    <div id="success-screen" class="screen">
-        <img src="FELICITACIONES.png" alt="¡Felicitaciones!" class="img-screen">
-        <h1 style="color: #1e7e34;">¡Estación Completada!</h1>
-        <p id="success-message">Evaluando resultados...</p>
-        <button id="finish-btn" class="btn-action" onclick="resetToWelcome()">Volver al Inicio</button>
-    </div>
-</div>
-
-<script src="questions.js"></script>
-<script src="app.js"></script>
-</body>
-</html>
+            border-color: #0d2c6c;
