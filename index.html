@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivia Institucional - INVIAS</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #001f3d 0%, #003366 100%); /* Tu fondo azul de la captura */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: #ffffff !important; /* Forzamos que la caja sea blanca siempre */
+            width: 100%;
+            max-width: 650px;
+            min-height: 450px; /* Asegura un tamaño mínimo visible si no hay imagen */
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Vistas (Se ocultan y muestran con JS) */
+        .screen {
+            display: none;
+            padding: 40px 35px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        #screen-welcome, #screen-reward {
+            padding-top: 0;
+        }
+
+        /* --- IMÁGENES CON RESPALDO --- */
+        .img-portada, .img-felicitaciones {
+            width: 100%;
+            max-height: 320px;
+            object-fit: cover;
+            border-bottom: 6px solid #ffcc00;
+            background-color: #f1f5f9; /* Si no carga la imagen, se verá un gris limpio */
+            display: block;
+        }
+
+        .img-felicitaciones {
+            border-bottom: 6px solid #28a745;
+        }
+
+        .logo-top {
+            max-width: 240px;
+            height: auto;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        /* --- TEXTOS --- */
+        .welcome-title {
+            color: #003366;
+            font-size: 2rem;
+            margin: 25px 0 12px 0;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .welcome-desc {
+            color: #4a5568;
+            font-size: 1.05rem;
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        /* --- ELEMENTOS DE TRIVIA --- */
+        .station-indicator {
+            background-color: #003366;
+            color: #ffcc00;
+            padding: 8px 24px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(0,51,102,0.15);
+        }
+
+        .progress-dots {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 30px;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: #cbd5e1;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background-color: #ffcc00;
+            border: 2px solid #003366;
+            transform: scale(1.25);
+        }
+
+        .dot.correct {
+            background-color: #28a745;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            font-weight: 700;
+            color: #1a202c;
+            line-height: 1.4;
+            padding: 0 10px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* --- BOTONES --- */
+        .btn {
+            background-color: #ffcc00;
+            color: #003366;
+            border: none;
+            padding: 16px 45px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 35px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255, 204, 0, 0.4);
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background-color: #e6b800;
+            transform: translateY(-2px);
+        }
+
+        .option-btn {
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            padding: 16px 22px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.05rem;
+            font-weight: 600;
+            text-align: left;
+            color: #334155;
+            transition: all 0.2s ease;
+            line-height: 1.3;
+        }
+
+        .option-btn:hover {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #003366;
+            transform: translateX(5px);
+        }
+
+        .btn-premio {
+            background-color: #28a745;
+            color: white;
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.35);
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn-premio:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        
+        <div id="screen-welcome" class="screen active">
+            <img src="BIENVENIDA.png" class="img-portada" alt="Bienvenida INVIAS">
+            <div style="padding: 0 30px 35px 30px;">
+                <h1 class="welcome-title">TRIVIA DE INFRAESTRUCTURA</h1>
+                <p class="welcome-desc">Demuestra tus conocimientos superando las 3 estaciones viales (Básica, Intermedia y Avanzada). Responde correctamente las rondas consecutivas para ganar.</p>
+                <button class="btn" onclick="iniciarJuego()">INICIAR COMIENZO</button>
+            </div>
+        </div>
+
+        <div id="screen-quiz" class="screen">
+            <img src="LOGO INVIAS.png" class="logo-top" alt="Logo INVIAS">
+            <br>
+            <div id="station-tag" class="station-indicator">Estación 1: Básica</div>
+            
+            <div class="progress-dots">
+                <div class="dot active" id="dot-0"></div>
+                <div class="dot" id="dot-1"></div>
+                <div class="dot" id="dot-2"></div>
+            </div>
+
+            <div id="question" class="question-text">Cargando...</div>
+            
+            <div id="options" class="options-container">
+                </div>
+        </div>
+
+        <div id="screen-reward" class="screen">
+            <img src="FELICITACIONES.png" class="img-felicitaciones" alt="¡Felicitaciones!">
+            <div style="padding: 0 30px 35px 30px;">
+                <h1 class="reward-title">¡FELICITACIONES!</h1>
+                <p class="welcome-desc">Has respondido correctamente las 3 rondas de cada estación de manera perfecta.<br><strong>¡Eres un experto en gestión vial!</strong></p>
+                <button class="btn btn-premio" onclick="entregarPremio()">RECLAMA TU PREMIO</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const juegoPorEstaciones = [
+            {
+                nombre: "Estación 1: Nivel Básico",
+                preguntas: [
+                    {
+                        pregunta: "¿Qué significan las siglas INVIAS?",
+                        opciones: ["Instituto Nacional de Vías", "Investigación de Vías de Colombia", "Inspector Nacional de Infraestructura", "Instituto de Vialidad y Asfalto"],
+                        correcta: 0
+                    },
+                    {
+                        pregunta: "¿Cuál es el color principal de las señales preventivas en las carreteras colombianas?",
+                        opciones: ["Azul", "Rojo", "Amarillo", "Verde"],
+                        correcta: 2
+                    },
+                    {
+                        pregunta: "¿Cuál es la función principal del INVIAS?",
+                        opciones: ["Parquear vehículos comerciales", "Regular el tránsito urbano", "Ejecutar proyectos en la red vial nacional no concesionada", "Controlar los vuelos comerciales"],
+                        correcta: 2
+                    }
+                ]
+            },
+            {
+                nombre: "Estación 2: Nivel Intermedio",
+                preguntas: [
+                    {
+                        pregunta: "¿Qué documento reúne la proyección de compras y contratación de la entidad (como el PAA)?",
+                        opciones: ["Plan Anual de Adquisiciones", "Presupuesto Alterno de Asfalto", "Plan de Alerta Automovilística", "Programa de Acreditación Ambiental"],
+                        correcta: 0
+                    },
+                    {
+                        pregunta: "¿A qué ministerio se encuentra adscrito el INVIAS?",
+                        opciones: ["Ministerio de Hacienda", "Ministerio de Transporte", "Ministerio de Minas y Energía", "Ministerio de Obras Civiles"],
+                        correcta: 1
+                    },
+                    {
+                        pregunta: "En contratos estatales, ¿cuál es una función clave del supervisor?",
+                        opciones: ["Operar maquinaria pesada", "Vigilar la correcta ejecución técnica, administrativa y financiera", "Modificar las leyes de contratación", "Atender llamadas de usuarios"],
+                        correcta: 1
+                    }
+                ]
+            },
+            {
+                nombre: "Estación 3: Nivel Avanzado",
+                preguntas: [
+                    {
+                        pregunta: "¿Cuál es uno de los túneles más largos de Latinoamérica operados bajo la red vial del país?",
+                        opciones: ["Túnel de Oriente", "Túnel del Occidente", "Túnel de la Línea", "Túnel de la Quiebra"],
+                        correcta: 2
+                    },
+                    {
+                        pregunta: "¿Qué estructura soporta directamente las cargas del tránsito vehicular en una vía?",
+                        opciones: ["El Pavimento (Rígido o Flexible)", "La Berma Lateral", "La Capa Freática", "La Geomalla de Contención"],
+                        correcta: 0
+                    },
+                    {
+                        pregunta: "¿Qué paso valida la entrega de un bien o servicio para proceder al desembolso económico en un contrato?",
+                        opciones: ["La firma de la oferta inicial", "La aprobación y certificación de la factura por la supervisión", "La postulación en el pliego", "El cierre geométrico de la obra"],
+                        correcta: 1
+                    }
+                ]
+            }
+        ];
+
+        let estActual = 0;
+        let rondActual = 0;
+
+        function cambiarPantalla(idPantalla) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(idPantalla).classList.add('active');
+        }
+
+        function iniciarJuego() {
+            estActual = 0;
+            rondActual = 0;
+            cambiarPantalla('screen-quiz');
+            cargarPregunta();
+        }
+
+        function cargarPregunta() {
+            const jsonEstacion = juegoPorEstaciones[estActual];
+            const jsonPregunta = jsonEstacion.preguntas[rondActual];
+
+            document.getElementById("station-tag").innerText = jsonEstacion.nombre;
+            document.getElementById("question").innerText = jsonPregunta.pregunta;
+            
+            for (let i = 0; i < 3; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                dot.className = "dot";
+                if (i < rondActual) {
+                    dot.classList.add("correct");
+                } else if (i === rondActual) {
+                    dot.classList.add("active");
+                }
+            }
+
+            const contenedorOpciones = document.getElementById("options");
+            contenedorOpciones.innerHTML = "";
+
+            jsonPregunta.opciones.forEach((opcion, index) => {
+                const boton = document.createElement("button");
+                boton.className = "option-btn";
+                boton.innerText = `${index + 1}. ${opcion}`;
+                boton.onclick = () => procesarRespuesta(index);
+                contenedorOpciones.appendChild(boton);
+            });
+        }
+
+        function procesarRespuesta(indiceSeleccionado) {
+            const preguntaCorrecta = juegoPorEstaciones[estActual].preguntas[rondActual].correcta;
+
+            if (indiceSeleccionado === preguntaCorrecta) {
+                rondActual++;
+
+                if (rondActual > 2) {
+                    rondActual = 0;
+                    estActual++; 
+                }
+
+                if (estActual > 2) {
+                    cambiarPantalla('screen-reward');
+                } else {
+                    alert("¡Excelente! Respuesta correcta.");
+                    cargarPregunta();
+                }
+            } else {
+                alert("Respuesta incorrecta. Para asegurar el conocimiento, debes reiniciar esta estación desde la ronda 1.");
+                rondActual = 0;
+                cargarPregunta();
+            }
+        }
+
+        function entregarPremio() {
+            alert("🎁 ¡Premio Activado! Presenta esta pantalla o toma una captura para reclamar tu incentivo con los organizadores.");
+        }
+    </script>
+</body>
+</html>
